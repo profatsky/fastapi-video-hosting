@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
 
 from app.database.database import Base
 
@@ -10,3 +11,4 @@ class UserModel(Base):
     email = Column(String, unique=True)
     username = Column(String(50))
     password = Column(String)
+    videos = relationship("VideoModel")
