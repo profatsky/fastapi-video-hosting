@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://vjs.zencdn.net/7.10.2/video-js.css" rel="stylesheet"/>
+    <link rel="icon" href="data:;base64,=">
+</head>
+<body>
+
+<video id="my-video" class="video-js" controls preload="auto" width="1000" height="800" data-setup="{}">
+    <source src="http://127.0.0.1:8000/videos/watch/{{ video_data.id }}" type="video/mp4"/>
+    <source src="http://127.0.0.1:8000/videos/watch/{{ video_data.id }}" type="video/webm"/>
+</video>
+<h2>{{ video_data.title }}</h2>
+
+<script src="https://vjs.zencdn.net/7.10.2/video.min.js"></script>
+</body>
+</html>
