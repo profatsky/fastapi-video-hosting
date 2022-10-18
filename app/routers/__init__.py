@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from .videos import router as videos_router
 from .auth import router as auth_router
+from .comments import router as videos_router
 
 router = APIRouter()
 router.include_router(videos_router)

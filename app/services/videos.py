@@ -21,18 +21,19 @@ class VideoService:
     def __init__(self, session: AsyncSession = Depends(get_session)):
         self.session = session
 
-    async def _get(self, video_id: int) -> VideoSchema | None:
+    async def _get(self, video_id: int) -> VideoModel | None:
         video = await self.session.execute(
             select(VideoModel)
             .options(joinedload(VideoModel.author))
+            .options(joinedload(VideoModel.comments))
             .where(VideoModel.id == video_id)
         )
         video = video.scalar()
         if not video:
             return
-        return VideoSchema.from_orm(video)
+        return video
 
-    async def get(self, video_id: int) -> VideoSchema | None:
+    async def get(self, video_id: int) -> VideoModel | None:
         return await self._get(video_id)
 
     async def create(
