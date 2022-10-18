@@ -13,5 +13,5 @@ class VideoModel(Base):
     file = Column(String(1000))
     created_at = Column(TIMESTAMP)
     author_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True)
-    comments = relationship("CommentModel")
-    author = relationship("UserModel")
+    comments = relationship("CommentModel", cascade="all,delete")
+    author = relationship("UserModel", back_populates="videos")

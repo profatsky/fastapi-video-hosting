@@ -11,4 +11,4 @@ class UserModel(Base):
     email = Column(String, unique=True)
     username = Column(String(50))
     password = Column(String)
-    videos = relationship("VideoModel")
+    videos = relationship("VideoModel", back_populates="author")
