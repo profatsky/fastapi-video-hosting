@@ -116,3 +116,8 @@ class VideoService:
 
         if hasattr(file, 'close'):
             file.close()
+
+    async def delete(self, video_id: int):
+        video = await self._get(video_id)
+        await self.session.delete(video)
+        await self.session.commit()

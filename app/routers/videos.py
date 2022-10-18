@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Form, UploadFile, File, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Form, UploadFile, File, Depends, HTTPException, status, BackgroundTasks, Response
 from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.requests import Request
 from fastapi.templating import Jinja2Templates
@@ -65,3 +65,18 @@ async def get_streaming_video(
         **headers
     })
     return response
+
+
+@router.delete("/{video_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_video(
+        video_id: int,
+        service: VideoService = Depends(),
+        user: UserSchema = Depends(get_current_user)
+):
+    video = await service.get(video_id)
+    if not video:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    if video.author.id != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+    await service.delete(video_id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
