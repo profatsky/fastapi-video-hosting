@@ -26,3 +26,7 @@ class CommentSchema(BaseCommentSchema):
 
 class CommentCreateSchema(BaseCommentSchema):
     pass
+
+
+class CommentUpdateSchema(BaseModel):
+    text: Optional[str] = None
