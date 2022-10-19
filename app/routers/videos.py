@@ -71,7 +71,7 @@ async def get_streaming_video(
     return response
 
 
-@router.put("/{video_id}")
+@router.put("/{video_id}", response_model=VideoSchema)
 async def update_video(
         video_id: int,
         video_data: VideoUpdateSchema,

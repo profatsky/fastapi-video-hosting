@@ -1,7 +1,9 @@
+from typing import List
+
 from fastapi import Depends, APIRouter, HTTPException, status, Response
 
 from app.schemas.auth import UserSchema
-from app.schemas.comments import CommentCreateSchema, CommentUpdateSchema
+from app.schemas.comments import CommentCreateSchema, CommentUpdateSchema, CommentSchema
 from app.services.auth import get_current_user
 from app.services.comments import CommentService
 from app.services.videos import VideoService
@@ -12,7 +14,7 @@ router = APIRouter(
 )
 
 
-@router.post("/{video_id}/comments")
+@router.post("/{video_id}/comments", response_model=CommentSchema)
 async def leave_comment(
         video_id: int,
         comment: CommentCreateSchema,
@@ -30,7 +32,7 @@ async def leave_comment(
     return await comment_service.create(video_id, comment, user)
 
 
-@router.get("/{video_id}/comments")
+@router.get("/{video_id}/comments", response_model=List[CommentSchema])
 async def get_list_comments(
         video_id: int,
         video_service: VideoService = Depends(),
@@ -46,7 +48,7 @@ async def get_list_comments(
     return await service.get_list(video_id)
 
 
-@router.get("/{video_id}/comments/{comment_id}")
+@router.get("/{video_id}/comments/{comment_id}", response_model=CommentSchema)
 async def get_comment(
         video_id: int,
         comment_id: int,
@@ -70,7 +72,7 @@ async def get_comment(
     return comment
 
 
-@router.put("/{video_id}/comments/{comment_id}")
+@router.put("/{video_id}/comments/{comment_id}", response_model=CommentSchema)
 async def update_comment(
         video_id: int,
         comment_id: int,
