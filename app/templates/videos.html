@@ -9,8 +9,8 @@
 <body>
 
 <video id="my-video" class="video-js" controls preload="auto" width="1000" height="800" data-setup="{}">
-    <source src="http://127.0.0.1:8000/videos/watch/{{ video_data.id }}" type="video/mp4"/>
-    <source src="http://127.0.0.1:8000/videos/watch/{{ video_data.id }}" type="video/webm"/>
+    <source src="http://127.0.0.1:8000/videos/{{ video_data.id }}/watching" type="video/mp4"/>
+    <source src="http://127.0.0.1:8000/videos/{{ video_data.id }}/watching" type="video/webm"/>
 </video>
 <h2>{{ video_data.title }}</h2>
 

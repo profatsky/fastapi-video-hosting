@@ -50,7 +50,7 @@ async def get_video(
     )
 
 
-@router.get("/watch/{video_id}")
+@router.get("/{video_id}/watching")
 async def get_streaming_video(
         video_id: int,
         request: Request,
