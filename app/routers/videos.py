@@ -4,7 +4,7 @@ from fastapi.requests import Request
 from fastapi.templating import Jinja2Templates
 
 from app.schemas.auth import UserSchema
-from app.schemas.videos import VideoCreateSchema, VideoSchema
+from app.schemas.videos import VideoCreateSchema, VideoSchema, VideoUpdateSchema
 from app.services.auth import get_current_user
 from app.services.videos import VideoService
 
@@ -65,6 +65,21 @@ async def get_streaming_video(
         **headers
     })
     return response
+
+
+@router.put("/{video_id}")
+async def update_video(
+        video_id: int,
+        video_data: VideoUpdateSchema,
+        service: VideoService = Depends(),
+        user: UserSchema = Depends(get_current_user)
+):
+    video = await service.get(video_id)
+    if not video:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    if video.author_id != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+    return await service.update(video_id, video_data)
 
 
 @router.delete("/{video_id}", status_code=status.HTTP_204_NO_CONTENT)

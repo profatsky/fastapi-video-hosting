@@ -14,7 +14,7 @@ from fastapi.requests import Request
 
 from app.database.database import get_session
 from app.models.videos import VideoModel
-from app.schemas.videos import VideoCreateSchema, VideoSchema
+from app.schemas.videos import VideoCreateSchema, VideoSchema, VideoUpdateSchema
 
 
 class VideoService:
@@ -116,6 +116,14 @@ class VideoService:
 
         if hasattr(file, 'close'):
             file.close()
+
+    async def update(self, video_id: int, video_data: VideoUpdateSchema):
+        video = await self._get(video_id)
+        for field, value in video_data:
+            if value is not None:
+                setattr(video, field, value)
+        await self.session.commit()
+        return video
 
     async def delete(self, video_id: int):
         video = await self._get(video_id)

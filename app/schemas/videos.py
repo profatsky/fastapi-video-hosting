@@ -1,5 +1,5 @@
 import datetime
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -25,3 +25,8 @@ class VideoSchema(BaseVideoSchema):
 
 class VideoCreateSchema(BaseVideoSchema):
     pass
+
+
+class VideoUpdateSchema(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
