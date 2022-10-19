@@ -40,7 +40,11 @@ async def get_video(
 ):
     video = await service.get(video_id)
     if not video:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Video doesn't exist"
+        )
+
     return templates.TemplateResponse(
         "videos.html", {"request": request, "video_data": video}
     )
@@ -76,9 +80,16 @@ async def update_video(
 ):
     video = await service.get(video_id)
     if not video:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Video doesn't exist"
+        )
     if video.author_id != user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Don't have permission"
+        )
+
     return await service.update(video_id, video_data)
 
 
@@ -90,8 +101,15 @@ async def delete_video(
 ):
     video = await service.get(video_id)
     if not video:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Video doesn't exist"
+        )
     if video.author.id != user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Don't have permission"
+        )
+
     await service.delete(video_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
