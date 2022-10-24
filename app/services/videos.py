@@ -27,6 +27,7 @@ class VideoService:
             select(VideoModel)
             .options(joinedload(VideoModel.author))
             .options(joinedload(VideoModel.comments))
+            .options(joinedload(VideoModel.likes))
             .where(VideoModel.id == video_id)
         )
         video = video.scalar()

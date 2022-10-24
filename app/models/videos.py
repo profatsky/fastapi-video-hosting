@@ -15,6 +15,10 @@ class VideoModel(Base):
     author_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True)
     comments = relationship("CommentModel", cascade="all,delete")
     author = relationship("UserModel", back_populates="videos")
+    likes = relationship(
+        "UserModel",
+        secondary="videos_likes"
+    )
 
 
 likes_table = Table(
