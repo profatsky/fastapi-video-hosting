@@ -6,14 +6,15 @@ from uuid import uuid4
 from typing import IO, Generator
 
 from fastapi import Depends, UploadFile
-from sqlalchemy import select
+from sqlalchemy import select, delete, and_, insert
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from fastapi.background import BackgroundTasks
 from fastapi.requests import Request
 
 from app.database.database import get_session
-from app.models.videos import VideoModel
+from app.models.videos import VideoModel, likes_table
 from app.schemas.videos import VideoCreateSchema, VideoSchema, VideoUpdateSchema
 
 
@@ -128,4 +129,24 @@ class VideoService:
     async def delete(self, video_id: int):
         video = await self._get(video_id)
         await self.session.delete(video)
+        await self.session.commit()
+
+    async def like(self, video_id: int, user_id: int):
+        try:
+            await self.session.execute(
+                insert(likes_table)
+                .values(video_id=video_id, user_id=user_id)
+            )
+            await self.session.commit()
+        except IntegrityError:
+            return
+
+    async def unlike(self, video_id: int, user_id: int):
+        await self.session.execute(
+            delete(likes_table)
+            .where(and_(
+                likes_table.c.video_id == video_id,
+                likes_table.c.user_id == user_id)
+            )
+        )
         await self.session.commit()

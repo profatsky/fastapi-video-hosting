@@ -113,3 +113,36 @@ async def delete_video(
 
     await service.delete(video_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/{video_id}/likes")
+async def like_video(
+        video_id: int,
+        video_service: VideoService = Depends(),
+        user: UserSchema = Depends(get_current_user)
+):
+    video = await video_service.get(video_id)
+    if not video:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Video doesn't exist"
+        )
+
+    await video_service.like(video_id, user.id)
+
+
+@router.delete("/{video_id}/likes")
+async def unlike_video(
+        video_id: int,
+        video_service: VideoService = Depends(),
+        user: UserSchema = Depends(get_current_user)
+):
+    video = await video_service.get(video_id)
+    if not video:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Video doesn't exist"
+        )
+
+    await video_service.unlike(video_id, user.id)
+
