@@ -12,3 +12,4 @@ class UserModel(Base):
     username = Column(String(50))
     password = Column(String)
     videos = relationship("VideoModel", back_populates="author")
+    comments = relationship("CommentModel", back_populates="author")

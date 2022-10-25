@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, TIMESTAMP
+from sqlalchemy.orm import relationship
 
 from app.database.database import Base
 
@@ -12,3 +13,4 @@ class CommentModel(Base):
     video_id = Column(Integer, ForeignKey("videos.id", ondelete="CASCADE"), index=True)
     created_at = Column(TIMESTAMP)
     answer_to = Column(Integer, ForeignKey("comments.id", ondelete="SET NULL"), index=True, nullable=True)
+    author = relationship("UserModel", back_populates="comments")

@@ -35,8 +35,11 @@ class VideoService:
             return
         return video
 
-    async def get(self, video_id: int) -> VideoModel | None:
-        return await self._get(video_id)
+    async def get(self, video_id: int) -> VideoSchema | None:
+        video = await self._get(video_id)
+        if not video:
+            return
+        return VideoSchema.from_orm(await self._get(video_id))
 
     async def create(
             self, background_tasks: BackgroundTasks, file: UploadFile, video_data: VideoCreateSchema
@@ -119,7 +122,7 @@ class VideoService:
         if hasattr(file, 'close'):
             file.close()
 
-    async def update(self, video_id: int, video_data: VideoUpdateSchema):
+    async def update(self, video_id: int, video_data: VideoUpdateSchema) -> VideoModel:
         video = await self._get(video_id)
         for field, value in video_data:
             if value is not None:

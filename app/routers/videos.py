@@ -3,7 +3,7 @@ from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.requests import Request
 from fastapi.templating import Jinja2Templates
 
-from app.schemas.auth import UserSchema
+from app.schemas.users import UserSchema
 from app.schemas.videos import VideoCreateSchema, VideoSchema, VideoUpdateSchema
 from app.services.auth import get_current_user
 from app.services.videos import VideoService
@@ -84,7 +84,7 @@ async def update_video(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Video doesn't exist"
         )
-    if video.author_id != user.id:
+    if video.author.id != user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Don't have permission"
@@ -145,4 +145,3 @@ async def unlike_video(
         )
 
     await video_service.unlike(video_id, user.id)
-

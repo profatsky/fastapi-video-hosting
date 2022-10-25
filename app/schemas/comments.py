@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel, validator
 
+from app.schemas.users import UserSchema
+
 
 class BaseCommentSchema(BaseModel):
     text: str
@@ -17,7 +19,7 @@ class BaseCommentSchema(BaseModel):
 
 class CommentSchema(BaseCommentSchema):
     id: int
-    author_id: int
+    author: UserSchema
     created_at: datetime.datetime
 
     class Config:

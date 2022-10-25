@@ -2,7 +2,7 @@ from typing import List
 
 from fastapi import Depends, APIRouter, HTTPException, status, Response
 
-from app.schemas.auth import UserSchema
+from app.schemas.users import UserSchema
 from app.schemas.comments import CommentCreateSchema, CommentUpdateSchema, CommentSchema
 from app.services.auth import get_current_user
 from app.services.comments import CommentService

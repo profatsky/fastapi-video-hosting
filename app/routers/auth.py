@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.schemas.auth import TokenSchema, UserCreateSchema, UserSchema
-from app.services.auth import AuthService, get_current_user
+from app.schemas.auth import TokenSchema
+from app.schemas.users import UserCreateSchema
+from app.services.auth import AuthService
 
 router = APIRouter(
     prefix="/auth",
@@ -27,8 +28,3 @@ async def sign_in(
         form_data.username,
         form_data.password
     )
-
-
-@router.get("/user", response_model=UserSchema)
-async def get_user(user: UserSchema = Depends(get_current_user)):
-    return user

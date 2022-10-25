@@ -3,28 +3,31 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from app.schemas.auth import UserSchema
+from app.schemas.users import UserSchema
 from app.schemas.comments import CommentSchema
 
 
 class BaseVideoSchema(BaseModel):
     title: str
     description: str
-    author: UserSchema
 
 
-class VideoSchema(BaseVideoSchema):
+class SimpleVideoSchema(BaseVideoSchema):
     id: int
     created_at: datetime.datetime
     file: str
-    comments: List[CommentSchema] = []
 
     class Config:
         orm_mode = True
 
 
+class VideoSchema(SimpleVideoSchema):
+    comments: List[CommentSchema] = []
+    author: UserSchema
+
+
 class VideoCreateSchema(BaseVideoSchema):
-    pass
+    author: UserSchema
 
 
 class VideoUpdateSchema(BaseModel):

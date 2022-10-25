@@ -4,11 +4,12 @@ from typing import List
 from fastapi import Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.database.database import get_session
 from app.models.comments import CommentModel
-from app.schemas.auth import UserSchema
-from app.schemas.comments import CommentCreateSchema, CommentUpdateSchema
+from app.schemas.users import UserSchema
+from app.schemas.comments import CommentCreateSchema, CommentUpdateSchema, CommentSchema
 
 
 class CommentService:
@@ -18,6 +19,7 @@ class CommentService:
     async def _get(self, comment_id: int) -> CommentModel | None:
         comment = await self.session.execute(
             select(CommentModel)
+            .options(joinedload(CommentModel.author))
             .where(CommentModel.id == comment_id)
         )
         comment = comment.scalar()
@@ -31,12 +33,13 @@ class CommentService:
     async def get_list(self, video_id: int) -> List[CommentModel]:
         comments = await self.session.execute(
             select(CommentModel)
+            .options(joinedload(CommentModel.author))
             .where(CommentModel.video_id == video_id)
         )
         comments = comments.scalars().all()
         return comments
 
-    async def create(self, video_id: int, comment: CommentCreateSchema, user: UserSchema) -> CommentModel:
+    async def create(self, video_id: int, comment: CommentCreateSchema, user: UserSchema) -> CommentSchema:
         comment = CommentModel(
             **comment.dict(),
             author_id=user.id,
@@ -46,7 +49,13 @@ class CommentService:
         self.session.add(comment)
         await self.session.commit()
 
-        return comment
+        return CommentSchema(
+            id=comment.id,
+            author=user,
+            text=comment.text,
+            created_at=comment.created_at,
+            answer_to=comment.answer_to
+        )
 
     async def update(self, comment_id: int, comment_data: CommentUpdateSchema):
         comment = await self._get(comment_id)
