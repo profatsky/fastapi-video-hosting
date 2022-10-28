@@ -65,6 +65,15 @@ class VideoService:
         self.session.add(video)
         await self.session.commit()
 
+        return VideoSchema(
+            id=video.id,
+            title=video.title,
+            description=video.description,
+            created_at=video.created_at,
+            file=video.file,
+            author=video_data.author
+        )
+
     @staticmethod
     def save_video(file: UploadFile, file_path: str):
         makedirs(file_path.rsplit("/", 1)[0], exist_ok=True)

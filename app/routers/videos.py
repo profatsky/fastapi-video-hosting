@@ -19,7 +19,7 @@ router = APIRouter(
 )
 
 
-@router.post("/upload", status_code=status.HTTP_201_CREATED)
+@router.post("/upload", response_model=VideoSchema, status_code=status.HTTP_201_CREATED)
 async def upload_video(
         background_tasks: BackgroundTasks,
         title: str = Form(...),
@@ -31,8 +31,7 @@ async def upload_video(
     if file.content_type != "video/mp4":
         raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
     video_data = VideoCreateSchema(title=title, description=description, author=user)
-    await service.create(background_tasks, file, video_data)
-    return Response(status_code=status.HTTP_201_CREATED)
+    return await service.create(background_tasks, file, video_data)
 
 
 @router.get("/{video_id}", response_class=HTMLResponse)
@@ -118,7 +117,7 @@ async def delete_video(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.get("/{video_od}/likes", response_model=List[UserSchema])
+@router.get("/{video_od}/likes", tags=["likes"], response_model=List[UserSchema])
 async def get_video_likes(
         video_id: int,
         service: VideoService = Depends()

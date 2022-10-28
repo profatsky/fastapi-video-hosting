@@ -24,7 +24,7 @@ class SimpleVideoSchema(BaseVideoSchema):
 class VideoSchema(SimpleVideoSchema):
     comments: List[CommentSchema] = []
     author: UserSchema
-    likes: List[UserSchema]
+    likes: List[UserSchema] = []
 
     @validator("likes")
     def get_amount(cls, lst):
