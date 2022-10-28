@@ -1,12 +1,13 @@
 from typing import List
 
 from fastapi import Depends
-from sqlalchemy import select
+from sqlalchemy import select, insert, delete, and_
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.database.database import get_session
-from app.models import UserModel, VideoModel
-from app.schemas.users import UserUpdateSchema
+from app.models import UserModel, VideoModel, subscribers_table
+from app.schemas.users import UserUpdateSchema, UserSchema
 
 
 class UserService:
@@ -16,6 +17,10 @@ class UserService:
     async def _get(self, user_id: int) -> UserModel | None:
         user = await self.session.execute(
             select(UserModel)
+            .options(joinedload(UserModel.videos))
+            .options(joinedload(UserModel.subscribers))
+            .options(joinedload(UserModel.subscribe_to))
+            .options(joinedload(UserModel.comments))
             .where(UserModel.id == user_id)
         )
         user = user.scalar()
@@ -24,7 +29,10 @@ class UserService:
         return user
 
     async def get(self, user_id: int) -> UserModel | None:
-        return await self._get(user_id)
+        user = await self._get(user_id)
+        if not user:
+            return
+        return user
 
     async def get_videos(self, user_id: int) -> List[VideoModel]:
         videos = await self.session.execute(
@@ -34,6 +42,15 @@ class UserService:
         videos = videos.scalars().all()
         return videos
 
+    async def get_subscribers(self, user_id: int) -> List[UserSchema]:
+        user = await self.session.execute(
+            select(UserModel)
+            .options(joinedload(UserModel.subscribers))
+            .where(UserModel.id == user_id)
+        )
+        user = user.scalar()
+        return [UserSchema.from_orm(subscriber) for subscriber in user.subscribers]
+
     async def update(self, user_id: int, user_data: UserUpdateSchema) -> UserModel:
         user = await self._get(user_id)
         for field, value in user_data:
@@ -42,7 +59,19 @@ class UserService:
         await self.session.commit()
         return user
 
-    async def delete(self, user_id):
-        video = await self._get(user_id)
-        await self.session.delete(video)
+    async def subscribe(self, user_id: int, user_data: UserSchema):
+        await self.session.execute(
+            insert(subscribers_table)
+            .values(author_id=user_id, subscriber_id=user_data.id)
+        )
+        await self.session.commit()
+
+    async def unsubscribe(self, user_id: int, user_data: UserSchema):
+        await self.session.execute(
+            delete(subscribers_table)
+            .where(and_(
+                subscribers_table.c.subscriber_id == user_data.id,
+                subscribers_table.c.author_id == user_id)
+            )
+        )
         await self.session.commit()

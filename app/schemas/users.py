@@ -1,6 +1,6 @@
-from typing import Optional
+from typing import Optional, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 
 class BaseUserSchema(BaseModel):
@@ -17,6 +17,14 @@ class UserSchema(BaseUserSchema):
 
     class Config:
         orm_mode = True
+
+
+class UserInfoSchema(UserSchema):
+    subscribers: List[UserSchema]
+
+    @validator("subscribers")
+    def get_amount(cls, lst):
+        return len(lst)
 
 
 class UserUpdateSchema(BaseModel):
