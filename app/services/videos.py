@@ -7,7 +7,6 @@ from typing import IO, Generator, List
 
 from fastapi import Depends, UploadFile
 from sqlalchemy import select, delete, and_, insert
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from fastapi.background import BackgroundTasks
