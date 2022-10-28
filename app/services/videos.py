@@ -3,7 +3,7 @@ from datetime import datetime
 from os import makedirs
 from pathlib import Path
 from uuid import uuid4
-from typing import IO, Generator
+from typing import IO, Generator, List
 
 from fastapi import Depends, UploadFile
 from sqlalchemy import select, delete, and_, insert
@@ -15,6 +15,7 @@ from fastapi.requests import Request
 
 from app.database.database import get_session
 from app.models.videos import VideoModel, likes_table
+from app.schemas.users import UserSchema
 from app.schemas.videos import VideoCreateSchema, VideoSchema, VideoUpdateSchema
 
 
@@ -42,8 +43,11 @@ class VideoService:
         return VideoSchema.from_orm(await self._get(video_id))
 
     async def create(
-            self, background_tasks: BackgroundTasks, file: UploadFile, video_data: VideoCreateSchema
-    ) -> VideoSchema | None:
+            self,
+            background_tasks: BackgroundTasks,
+            file: UploadFile,
+            video_data: VideoCreateSchema
+    ):
         file_path = f"app/videos/{video_data.author.id}/{uuid4()}.mp4"
 
         background_tasks.add_task(
@@ -61,15 +65,6 @@ class VideoService:
         )
         self.session.add(video)
         await self.session.commit()
-
-        return VideoSchema(
-            id=video.id,
-            title=video.title,
-            description=video.description,
-            created_at=video.created_at,
-            file=video.file,
-            author=video_data.author
-        )
 
     @staticmethod
     def save_video(file: UploadFile, file_path: str):
@@ -135,15 +130,16 @@ class VideoService:
         await self.session.delete(video)
         await self.session.commit()
 
+    async def get_like_list(self, video_id: int) -> List[UserSchema]:
+        video = await self._get(video_id)
+        return [UserSchema.from_orm(user) for user in video.likes]
+
     async def like(self, video_id: int, user_id: int):
-        try:
-            await self.session.execute(
-                insert(likes_table)
-                .values(video_id=video_id, user_id=user_id)
-            )
-            await self.session.commit()
-        except IntegrityError:
-            return
+        await self.session.execute(
+            insert(likes_table)
+            .values(video_id=video_id, user_id=user_id)
+        )
+        await self.session.commit()
 
     async def unlike(self, video_id: int, user_id: int):
         await self.session.execute(

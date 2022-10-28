@@ -1,7 +1,7 @@
 import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 from app.schemas.users import UserSchema
 from app.schemas.comments import CommentSchema
@@ -24,6 +24,11 @@ class SimpleVideoSchema(BaseVideoSchema):
 class VideoSchema(SimpleVideoSchema):
     comments: List[CommentSchema] = []
     author: UserSchema
+    likes: List[UserSchema]
+
+    @validator("likes")
+    def get_amount(cls, lst):
+        return len(lst)
 
 
 class VideoCreateSchema(BaseVideoSchema):

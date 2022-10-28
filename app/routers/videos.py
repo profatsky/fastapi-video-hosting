@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Form, UploadFile, File, Depends, HTTPException, status, BackgroundTasks, Response
 from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.requests import Request
@@ -13,11 +15,11 @@ templates = Jinja2Templates(directory="app/templates")
 
 router = APIRouter(
     prefix="/videos",
-    tags=["video"]
+    tags=["videos"]
 )
 
 
-@router.post("/upload", response_model=VideoSchema)
+@router.post("/upload", status_code=status.HTTP_201_CREATED)
 async def upload_video(
         background_tasks: BackgroundTasks,
         title: str = Form(...),
@@ -29,7 +31,8 @@ async def upload_video(
     if file.content_type != "video/mp4":
         raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
     video_data = VideoCreateSchema(title=title, description=description, author=user)
-    return await service.create(background_tasks, file, video_data)
+    await service.create(background_tasks, file, video_data)
+    return Response(status_code=status.HTTP_201_CREATED)
 
 
 @router.get("/{video_id}", response_class=HTMLResponse)
@@ -115,33 +118,59 @@ async def delete_video(
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/{video_id}/likes")
+@router.get("/{video_od}/likes", response_model=List[UserSchema])
+async def get_video_likes(
+        video_id: int,
+        service: VideoService = Depends()
+):
+    video = await service.get(video_id)
+    if not video:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Video doesn't exist"
+        )
+
+    return await service.get_like_list(video_id)
+
+
+@router.post("/{video_id}/likes", tags=["likes"], status_code=status.HTTP_201_CREATED)
 async def like_video(
         video_id: int,
-        video_service: VideoService = Depends(),
+        service: VideoService = Depends(),
         user: UserSchema = Depends(get_current_user)
 ):
-    video = await video_service.get(video_id)
+    video = await service.get(video_id)
     if not video:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Video doesn't exist"
         )
+    if user in await service.get_like_list(video_id):
+        raise HTTPException(
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+            detail="You already liked this video"
+        )
+    await service.like(video_id, user.id)
+    return Response(status_code=status.HTTP_201_CREATED)
 
-    await video_service.like(video_id, user.id)
 
-
-@router.delete("/{video_id}/likes")
+@router.delete("/{video_id}/likes", tags=["likes"], status_code=status.HTTP_204_NO_CONTENT)
 async def unlike_video(
         video_id: int,
-        video_service: VideoService = Depends(),
+        service: VideoService = Depends(),
         user: UserSchema = Depends(get_current_user)
 ):
-    video = await video_service.get(video_id)
+    video = await service.get(video_id)
     if not video:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Video doesn't exist"
         )
+    if user not in await service.get_like_list(video_id):
+        raise HTTPException(
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+            detail="You have not liked this video before"
+        )
 
-    await video_service.unlike(video_id, user.id)
+    await service.unlike(video_id, user.id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
