@@ -100,7 +100,7 @@ async def subscribe_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User doesn't exist"
         )
-    if user in await service.get_subscribers(user_id):
+    if user.id in await service.get_subscribers(user_id):
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
             detail="You are already subscribed"
@@ -126,7 +126,7 @@ async def unsubscribe_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User doesn't exist"
         )
-    if user not in await service.get_subscribers(user_id):
+    if user.id not in await service.get_subscribers(user_id):
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
             detail="You are not subscribed"

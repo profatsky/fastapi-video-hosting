@@ -42,14 +42,14 @@ class UserService:
         videos = videos.scalars().all()
         return videos
 
-    async def get_subscribers(self, user_id: int) -> List[UserSchema]:
+    async def get_subscribers(self, user_id: int) -> List[int]:
         user = await self.session.execute(
             select(UserModel)
             .options(joinedload(UserModel.subscribers))
             .where(UserModel.id == user_id)
         )
         user = user.scalar()
-        return [UserSchema.from_orm(subscriber) for subscriber in user.subscribers]
+        return [subscriber.id for subscriber in user.subscribers]
 
     async def update(self, user_id: int, user_data: UserUpdateSchema) -> UserModel:
         user = await self._get(user_id)

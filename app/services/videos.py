@@ -14,7 +14,6 @@ from fastapi.requests import Request
 
 from app.database.database import get_session
 from app.models.videos import VideoModel, likes_table
-from app.schemas.users import UserSchema
 from app.schemas.videos import VideoCreateSchema, VideoSchema, VideoUpdateSchema
 
 
@@ -35,11 +34,11 @@ class VideoService:
             return
         return video
 
-    async def get(self, video_id: int) -> VideoSchema | None:
+    async def get(self, video_id: int) -> VideoModel | None:
         video = await self._get(video_id)
         if not video:
             return
-        return VideoSchema.from_orm(await self._get(video_id))
+        return video
 
     async def create(
             self,
@@ -138,9 +137,9 @@ class VideoService:
         await self.session.delete(video)
         await self.session.commit()
 
-    async def get_like_list(self, video_id: int) -> List[UserSchema]:
+    async def get_like_list(self, video_id: int) -> List[int]:
         video = await self._get(video_id)
-        return [UserSchema.from_orm(user) for user in video.likes]
+        return [user.id for user in video.likes]
 
     async def like(self, video_id: int, user_id: int):
         await self.session.execute(

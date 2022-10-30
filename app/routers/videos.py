@@ -91,7 +91,6 @@ async def update_video(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Don't have permission"
         )
-
     return await service.update(video_id, video_data)
 
 
@@ -112,7 +111,6 @@ async def delete_video(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Don't have permission"
         )
-
     await service.delete(video_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -128,8 +126,7 @@ async def get_video_likes(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Video doesn't exist"
         )
-
-    return await service.get_like_list(video_id)
+    return video.likes
 
 
 @router.post("/{video_id}/likes", tags=["likes"], status_code=status.HTTP_201_CREATED)
@@ -144,7 +141,7 @@ async def like_video(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Video doesn't exist"
         )
-    if user in await service.get_like_list(video_id):
+    if user.id in await service.get_like_list(video_id):
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
             detail="You already liked this video"
@@ -165,11 +162,10 @@ async def unlike_video(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Video doesn't exist"
         )
-    if user not in await service.get_like_list(video_id):
+    if user.id not in await service.get_like_list(video_id):
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
             detail="You have not liked this video before"
         )
-
     await service.unlike(video_id, user.id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
