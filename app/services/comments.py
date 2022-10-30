@@ -10,12 +10,10 @@ from app.database.database import get_session
 from app.models.comments import CommentModel
 from app.schemas.users import UserSchema
 from app.schemas.comments import CommentCreateSchema, CommentUpdateSchema, CommentSchema
+from app.services.base import BaseService
 
 
-class CommentService:
-    def __init__(self, session: AsyncSession = Depends(get_session)):
-        self.session = session
-
+class CommentService(BaseService):
     async def _get(self, comment_id: int) -> CommentModel | None:
         comment = await self.session.execute(
             select(CommentModel)

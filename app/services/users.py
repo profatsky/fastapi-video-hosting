@@ -8,12 +8,10 @@ from sqlalchemy.orm import joinedload
 from app.database.database import get_session
 from app.models import UserModel, VideoModel, subscribers_table
 from app.schemas.users import UserUpdateSchema, UserSchema
+from app.services.base import BaseService
 
 
-class UserService:
-    def __init__(self, session: AsyncSession = Depends(get_session)):
-        self.session = session
-
+class UserService(BaseService):
     async def _get(self, user_id: int) -> UserModel | None:
         user = await self.session.execute(
             select(UserModel)

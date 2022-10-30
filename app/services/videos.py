@@ -15,12 +15,10 @@ from fastapi.requests import Request
 from app.database.database import get_session
 from app.models.videos import VideoModel, likes_table
 from app.schemas.videos import VideoCreateSchema, VideoSchema, VideoUpdateSchema
+from app.services.base import BaseService
 
 
-class VideoService:
-    def __init__(self, session: AsyncSession = Depends(get_session)):
-        self.session = session
-
+class VideoService(BaseService):
     async def _get(self, video_id: int) -> VideoModel | None:
         video = await self.session.execute(
             select(VideoModel)

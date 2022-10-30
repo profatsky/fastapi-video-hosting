@@ -14,7 +14,7 @@ from app.database.database import get_session
 from app.models import UserModel
 from app.schemas.auth import TokenSchema
 from app.schemas.users import UserSchema, UserCreateSchema
-
+from app.services.base import BaseService
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/sign-in")
 
@@ -23,10 +23,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)) -> UserSchema:
     return AuthService.validate_token(token)
 
 
-class AuthService:
-    def __init__(self, session: AsyncSession = Depends(get_session)):
-        self.session = session
-
+class AuthService(BaseService):
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:
         return bcrypt.verify(plain_password, hashed_password)
