@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.schemas.auth import TokenSchema
@@ -16,7 +16,13 @@ async def sign_up(
         user_data: UserCreateSchema,
         service: AuthService = Depends()
 ):
-    return await service.register_new_user(user_data)
+    token = await service.register_new_user(user_data)
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="User with this email already exists"
+        )
+    return token
 
 
 @router.post("/sign-in", response_model=TokenSchema)

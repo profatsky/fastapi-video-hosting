@@ -6,6 +6,7 @@ from jose import jwt, JWTError
 from passlib.hash import bcrypt
 from pydantic import ValidationError
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
@@ -82,15 +83,17 @@ class AuthService:
 
         return TokenSchema(access_token=token)
 
-    async def register_new_user(self, user_data: UserCreateSchema) -> TokenSchema:
+    async def register_new_user(self, user_data: UserCreateSchema) -> TokenSchema | None:
         user = UserModel(
             email=user_data.email,
             username=user_data.username,
             password=self.hash_password(user_data.password)
         )
-
-        self.session.add(user)
-        await self.session.commit()
+        try:
+            self.session.add(user)
+            await self.session.commit()
+        except IntegrityError:
+            return
 
         return self.create_token(user)
 
