@@ -17,6 +17,7 @@ class UserModel(Base):
     id = Column(Integer, primary_key=True)
     email = Column(String, unique=True)
     username = Column(String(50))
+    bio = Column(String(160), nullable=True)
     password = Column(String)
     subscribers = relationship(
         "UserModel",

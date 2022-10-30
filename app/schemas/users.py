@@ -20,6 +20,7 @@ class UserSchema(BaseUserSchema):
 
 
 class UserInfoSchema(UserSchema):
+    bio: Optional[str]
     subscribers: List[UserSchema]
 
     @validator("subscribers")
@@ -29,4 +30,4 @@ class UserInfoSchema(UserSchema):
 
 class UserUpdateSchema(BaseModel):
     username: Optional[str] = None
-    email: Optional[str] = None
+    bio: Optional[str] = None
