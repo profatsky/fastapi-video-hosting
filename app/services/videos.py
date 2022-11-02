@@ -67,7 +67,6 @@ class VideoService(BaseService):
             title=video.title,
             description=video.description,
             created_at=video.created_at,
-            file=video.file,
             author=video_data.author
         )
 

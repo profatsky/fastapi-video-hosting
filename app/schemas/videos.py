@@ -15,7 +15,6 @@ class BaseVideoSchema(BaseModel):
 class SimpleVideoSchema(BaseVideoSchema):
     id: int
     created_at: datetime.datetime
-    file: str
 
     class Config:
         orm_mode = True
