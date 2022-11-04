@@ -19,10 +19,6 @@ from app.services.base import BaseService
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/sign-in")
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)) -> UserSchema:
-    return AuthService.validate_token(token)
-
-
 class AuthService(BaseService):
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:

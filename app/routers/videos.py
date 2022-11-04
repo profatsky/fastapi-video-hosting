@@ -5,9 +5,11 @@ from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.requests import Request
 from fastapi.templating import Jinja2Templates
 
+from app.dependencies.videos import valid_video_id, valid_owned_video
+from app.models import VideoModel
 from app.schemas.users import UserSchema
 from app.schemas.videos import VideoCreateSchema, VideoSchema, VideoUpdateSchema
-from app.services.auth import get_current_user
+from app.dependencies.auth import get_current_user
 from app.services.videos import VideoService
 
 
@@ -37,16 +39,8 @@ async def upload_video(
 @router.get("/{video_id}", response_class=HTMLResponse)
 async def get_video(
         request: Request,
-        video_id: int,
-        service: VideoService = Depends()
+        video: VideoModel = Depends(valid_video_id)
 ):
-    video = await service.get(video_id)
-    if not video:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Video doesn't exist"
-        )
-
     return templates.TemplateResponse(
         "videos.html", {"request": request, "video_data": video}
     )
@@ -73,99 +67,49 @@ async def get_streaming_video(
     return response
 
 
-@router.put("/{video_id}", response_model=VideoSchema)
+@router.patch("/{video_id}", response_model=VideoSchema)
 async def update_video(
-        video_id: int,
         video_data: VideoUpdateSchema,
+        video: VideoModel = Depends(valid_owned_video),
         service: VideoService = Depends(),
-        user: UserSchema = Depends(get_current_user)
 ):
-    video = await service.get(video_id)
-    if not video:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Video doesn't exist"
-        )
-    if video.author.id != user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Don't have permission"
-        )
-    return await service.update(video_id, video_data)
+    return await service.update(video.id, video_data)
 
 
 @router.delete("/{video_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_video(
-        video_id: int,
-        service: VideoService = Depends(),
-        user: UserSchema = Depends(get_current_user)
+
+        video: VideoModel = Depends(valid_owned_video),
+        service: VideoService = Depends()
 ):
-    video = await service.get(video_id)
-    if not video:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Video doesn't exist"
-        )
-    if video.author.id != user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Don't have permission"
-        )
-    await service.delete(video_id)
+    await service.delete(video.id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.get("/{video_od}/likes", tags=["likes"], response_model=List[UserSchema])
+@router.get("/{video_od}/likes", response_model=List[UserSchema])
 async def get_video_likes(
-        video_id: int,
-        service: VideoService = Depends()
+        video: VideoModel = Depends(valid_video_id)
 ):
-    video = await service.get(video_id)
-    if not video:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Video doesn't exist"
-        )
     return video.likes
 
 
-@router.post("/{video_id}/likes", tags=["likes"], status_code=status.HTTP_201_CREATED)
+@router.put("/{video_id}/likes", status_code=status.HTTP_200_OK)
 async def like_video(
-        video_id: int,
-        service: VideoService = Depends(),
-        user: UserSchema = Depends(get_current_user)
+        user: UserSchema = Depends(get_current_user),
+        video: VideoModel = Depends(valid_video_id),
+        service: VideoService = Depends()
 ):
-    video = await service.get(video_id)
-    if not video:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Video doesn't exist"
-        )
-    if user.id in await service.get_like_list(video_id):
-        raise HTTPException(
-            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-            detail="You already liked this video"
-        )
-    await service.like(video_id, user.id)
-    return Response(status_code=status.HTTP_201_CREATED)
+    if user.id in await service.get_like_list(video.id):
+        await service.like(video.id, user.id)
+    return Response(status_code=status.HTTP_200_OK)
 
 
-@router.delete("/{video_id}/likes", tags=["likes"], status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{video_id}/likes", status_code=status.HTTP_200_OK)
 async def unlike_video(
-        video_id: int,
-        service: VideoService = Depends(),
-        user: UserSchema = Depends(get_current_user)
+        user: UserSchema = Depends(get_current_user),
+        video: VideoModel = Depends(valid_video_id),
+        service: VideoService = Depends()
 ):
-    video = await service.get(video_id)
-    if not video:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Video doesn't exist"
-        )
-    if user.id not in await service.get_like_list(video_id):
-        raise HTTPException(
-            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-            detail="You have not liked this video before"
-        )
-    await service.unlike(video_id, user.id)
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    if user.id not in await service.get_like_list(video.id):
+        await service.unlike(video.id, user.id)
+    return Response(status_code=status.HTTP_200_OK)

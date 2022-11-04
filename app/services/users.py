@@ -57,19 +57,21 @@ class UserService(BaseService):
         await self.session.commit()
         return user
 
-    async def subscribe(self, user_id: int, user_data: UserSchema):
-        await self.session.execute(
-            insert(subscribers_table)
-            .values(author_id=user_id, subscriber_id=user_data.id)
-        )
-        await self.session.commit()
-
-    async def unsubscribe(self, user_id: int, user_data: UserSchema):
-        await self.session.execute(
-            delete(subscribers_table)
-            .where(and_(
-                subscribers_table.c.subscriber_id == user_data.id,
-                subscribers_table.c.author_id == user_id)
+    async def subscribe(self, author_id: int, user: UserSchema):
+        if user.id not in await self.get_subscribers(author_id):
+            await self.session.execute(
+                insert(subscribers_table)
+                .values(author_id=author_id, subscriber_id=user.id)
             )
-        )
-        await self.session.commit()
+            await self.session.commit()
+
+    async def unsubscribe(self, author_id: int, user: UserSchema):
+        if user.id in await self.get_subscribers(author_id):
+            await self.session.execute(
+                delete(subscribers_table)
+                .where(and_(
+                    subscribers_table.c.subscriber_id == user.id,
+                    subscribers_table.c.author_id == author_id)
+                )
+            )
+            await self.session.commit()
