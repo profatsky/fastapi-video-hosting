@@ -5,14 +5,12 @@ from pathlib import Path
 from uuid import uuid4
 from typing import IO, Generator, List
 
-from fastapi import Depends, UploadFile
+from fastapi import UploadFile
 from sqlalchemy import select, delete, and_, insert
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from fastapi.background import BackgroundTasks
 from fastapi.requests import Request
 
-from app.database.database import get_session
 from app.models.videos import VideoModel, likes_table
 from app.schemas.videos import VideoCreateSchema, VideoSchema, VideoUpdateSchema
 from app.services.base import BaseService

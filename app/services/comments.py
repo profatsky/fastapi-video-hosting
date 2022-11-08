@@ -1,12 +1,9 @@
 from datetime import datetime
 from typing import List
 
-from fastapi import Depends
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.database.database import get_session
 from app.models.comments import CommentModel
 from app.schemas.users import UserSchema
 from app.schemas.comments import CommentCreateSchema, CommentUpdateSchema, CommentSchema

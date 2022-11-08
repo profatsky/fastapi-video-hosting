@@ -1,16 +1,14 @@
 from datetime import datetime, timedelta
 
-from fastapi import HTTPException, status, Depends
+from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from passlib.hash import bcrypt
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.database.database import get_session
 from app.models import UserModel
 from app.schemas.auth import TokenSchema
 from app.schemas.users import UserSchema, UserCreateSchema

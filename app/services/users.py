@@ -1,11 +1,8 @@
 from typing import List
 
-from fastapi import Depends
 from sqlalchemy import select, insert, delete, and_
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.database.database import get_session
 from app.models import UserModel, VideoModel, subscribers_table
 from app.schemas.users import UserUpdateSchema, UserSchema
 from app.services.base import BaseService
