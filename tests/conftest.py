@@ -1,5 +1,3 @@
-import os
-
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
@@ -8,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from app.app import app
 from app.database.database import Base, get_session
 from app.database.db_config import get_sqlalchemy_url
+from app.schemas.users import UserCreateSchema
 
 engine = create_async_engine(
     get_sqlalchemy_url(database="test"),
@@ -42,6 +41,15 @@ async def client(session):
     app.dependency_overrides[get_session] = _override_get_db
     async with AsyncClient(app=app, base_url="http://127.0.0.1:8000") as cli:
         yield cli
+
+
+@pytest.fixture
+async def user_to_create():
+    yield UserCreateSchema(
+        username="test",
+        email="test@test.com",
+        password="qwerty"
+    )
 
 
 @pytest.fixture(scope="session")
