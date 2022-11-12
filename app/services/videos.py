@@ -1,3 +1,4 @@
+import os
 import shutil
 from datetime import datetime
 from os import makedirs
@@ -129,6 +130,7 @@ class VideoService(BaseService):
 
     async def delete(self, video_id: int):
         video = await self._get(video_id)
+        os.remove(os.path.join(os.path.realpath(__file__).replace("app\\services\\videos.py", ""), f"{video.file}"))
         await self.session.delete(video)
         await self.session.commit()
 

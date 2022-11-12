@@ -258,7 +258,7 @@ async def like_video(
 
     **video_id**: video id
     """
-    if user.id in await service.get_like_list(video.id):
+    if user.id not in await service.get_like_list(video.id):
         await service.like(video.id, user.id)
     return Response(status_code=status.HTTP_200_OK)
 
@@ -291,6 +291,6 @@ async def unlike_video(
 
     **video_id**: video id
     """
-    if user.id not in await service.get_like_list(video.id):
+    if user.id in await service.get_like_list(video.id):
         await service.unlike(video.id, user.id)
     return Response(status_code=status.HTTP_200_OK)
