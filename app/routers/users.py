@@ -71,11 +71,11 @@ async def get_user_videos(
 
 @router.patch(
     "/{user_id}",
-    response_model=UserSchema,
+    response_model=UserInfoSchema,
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_200_OK: {
-            "model": UserSchema,
+            "model": UserInfoSchema,
             "description": "User info updated"
         },
         status.HTTP_401_UNAUTHORIZED: {
@@ -92,7 +92,7 @@ async def get_user_videos(
         }
     }
 )
-async def update_user(
+async def update_user_info(
         user_data: UserUpdateSchema,
         user: UserModel = Depends(valid_user_id),
         current_user: UserSchema = Depends(get_current_user),
@@ -165,7 +165,7 @@ async def get_user_subscribers(
 
 
 @router.put(
-    "/{user_id}",
+    "/{user_id}/subscribers",
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_200_OK: {
@@ -206,7 +206,7 @@ async def subscribe_user(
 
 
 @router.delete(
-    "/{user_id}",
+    "/{user_id}/subscribers",
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_200_OK: {
