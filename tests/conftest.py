@@ -1,7 +1,9 @@
+import logging
 import os
 
 import pytest
 from httpx import AsyncClient
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
@@ -45,9 +47,23 @@ async def client(session):
         yield cli
 
 
+@pytest.fixture(autouse=True, scope="function")
+async def clear_db(session):
+    yield
+    try:
+        for table in Base.metadata.tables:
+            await session.execute(text(f"TRUNCATE {table} CASCADE"))
+            if table not in ("subscribers", "videos_likes"):
+                await session.execute(text(f"ALTER SEQUENCE {table}_id_seq RESTART WITH 1"))
+
+            await session.commit()
+    except Exception as err:
+        logging.warning(err)
+
+
 @pytest.fixture
-async def user_to_create():
-    yield UserCreateSchema(
+def user_to_create():
+    return UserCreateSchema(
         username="test",
         email="test@test.com",
         password="qwerty"
@@ -67,12 +83,12 @@ async def authorized_client_token(client, user_to_create):
             "password": "qwerty"
         }
     )
-    yield resp.json()["access_token"]
+    return resp.json()["access_token"]
 
 
 @pytest.fixture
-async def video_file():
-    yield {
+def video_file():
+    return {
         'file': (
             "video_test.mp4",
             open(os.path.join(os.path.dirname(__file__), "assets/video_test.mp4"), "rb"),
