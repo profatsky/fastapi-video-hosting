@@ -1,11 +1,19 @@
 # fastapi-video-hosting
 
-Simple REST API video hosting with FastAPI in Python
+REST API для видео-хостинга на Python
 
-## Features
-* JWT authorization
-* Uploading videos
-* Watching videos
-* Comments on videos
-* Likes on videos
-* Subscriptions
+## Технологии
+* FastAPI
+* SQLAlchemy
+* Alembic
+* pytest
+
+## Функционал
+* JWT авторизация
+* Загрузка и просмотр видео
+* Комментарии под видео
+* Лайки под видео
+* Подписки на авторов видео
+
+## Документация Swagger
+![swagger doc](/img/swagger.png)
