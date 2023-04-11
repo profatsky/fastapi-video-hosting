@@ -3,8 +3,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel, validator
 
-from app.schemas.users import UserSchema
-from app.schemas.comments import CommentSchema
+from app.users.schemas import UserSchema
+from app.comments.schemas import CommentSchema
 
 
 class BaseVideoSchema(BaseModel):

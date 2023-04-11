@@ -5,13 +5,13 @@ from fastapi.responses import StreamingResponse, HTMLResponse
 from fastapi.requests import Request
 from fastapi.templating import Jinja2Templates
 
-from app.dependencies.videos import valid_video_id, valid_owned_video
-from app.models import VideoModel
-from app.schemas.exceptions import MessageSchema
-from app.schemas.users import UserSchema
-from app.schemas.videos import VideoCreateSchema, VideoSchema, VideoUpdateSchema
-from app.dependencies.auth import get_current_user
-from app.services.videos import VideoService
+from app.videos.dependencies import valid_video_id, valid_owned_video
+from app.exceptions_schemas import MessageSchema
+from app.users.schemas import UserSchema
+from app.videos.schemas import VideoCreateSchema, VideoSchema, VideoUpdateSchema
+from app.auth.dependencies import get_current_user
+from app.videos.services import VideoService
+from .models import VideoModel
 
 
 templates = Jinja2Templates(directory="app/templates")

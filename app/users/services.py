@@ -1,14 +1,20 @@
 from typing import List
 
+from fastapi import Depends
 from sqlalchemy import select, insert, delete, and_
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.models import UserModel, VideoModel, subscribers_table
-from app.schemas.users import UserUpdateSchema, UserSchema
-from app.services.base import BaseService
+from app.database.database import get_session
+from .models import UserModel, subscribers_table
+from app.videos.models import VideoModel
+from app.users.schemas import UserUpdateSchema, UserSchema
 
 
-class UserService(BaseService):
+class UserService:
+    def __init__(self, session: AsyncSession = Depends(get_session)):
+        self.session = session
+
     async def _get(self, user_id: int) -> UserModel | None:
         user = await self.session.execute(
             select(UserModel)

@@ -6,18 +6,22 @@ from pathlib import Path
 from uuid import uuid4
 from typing import IO, Generator, List
 
-from fastapi import UploadFile
+from fastapi import UploadFile, Depends
 from sqlalchemy import select, delete, and_, insert
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 from fastapi.background import BackgroundTasks
 from fastapi.requests import Request
 
-from app.models.videos import VideoModel, likes_table
-from app.schemas.videos import VideoCreateSchema, VideoSchema, VideoUpdateSchema
-from app.services.base import BaseService
+from app.database.database import get_session
+from .models import VideoModel, likes_table
+from .schemas import VideoCreateSchema, VideoSchema, VideoUpdateSchema
 
 
-class VideoService(BaseService):
+class VideoService:
+    def __init__(self, session: AsyncSession = Depends(get_session)):
+        self.session = session
+
     async def _get(self, video_id: int) -> VideoModel | None:
         video = await self.session.execute(
             select(VideoModel)
@@ -43,7 +47,7 @@ class VideoService(BaseService):
             file: UploadFile,
             video_data: VideoCreateSchema
     ):
-        file_path = f"app/videos/{video_data.author.id}/{uuid4()}.mp4"
+        file_path = f"app/media/videos/{video_data.author.id}/{uuid4()}.mp4"
 
         background_tasks.add_task(
             self.save_video,
@@ -130,7 +134,7 @@ class VideoService(BaseService):
 
     async def delete(self, video_id: int):
         video = await self._get(video_id)
-        os.remove(os.path.join(os.path.realpath(__file__).replace("app\\services\\videos.py", ""), f"{video.file}"))
+        os.remove(os.path.join(os.path.realpath(__file__).replace("app\\videos\\services.py", ""), f"{video.file}"))
         await self.session.delete(video)
         await self.session.commit()
 

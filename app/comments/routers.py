@@ -2,14 +2,15 @@ from typing import List
 
 from fastapi import Depends, APIRouter, status, Response
 
-from app.dependencies.comments import valid_comment_id, valid_owned_comment
-from app.dependencies.videos import valid_video_id
-from app.models import VideoModel, CommentModel
-from app.schemas.exceptions import MessageSchema
-from app.schemas.users import UserSchema
-from app.schemas.comments import CommentCreateSchema, CommentUpdateSchema, CommentSchema
-from app.dependencies.auth import get_current_user
-from app.services.comments import CommentService
+from app.comments.dependencies import valid_comment_id, valid_owned_comment
+from app.videos.dependencies import valid_video_id
+from app.videos.models import VideoModel
+from app.comments.models import CommentModel
+from app.exceptions_schemas import MessageSchema
+from app.users.schemas import UserSchema
+from app.auth.dependencies import get_current_user
+from .schemas import CommentCreateSchema, CommentUpdateSchema, CommentSchema
+from .services import CommentService
 
 router = APIRouter(
     prefix="/videos",

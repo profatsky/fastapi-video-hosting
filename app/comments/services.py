@@ -1,16 +1,21 @@
 from datetime import datetime
 from typing import List
 
+from fastapi import Depends
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
-from app.models.comments import CommentModel
-from app.schemas.users import UserSchema
-from app.schemas.comments import CommentCreateSchema, CommentUpdateSchema, CommentSchema
-from app.services.base import BaseService
+from app.comments.models import CommentModel
+from app.users.schemas import UserSchema
+from app.comments.schemas import CommentCreateSchema, CommentUpdateSchema, CommentSchema
+from app.database.database import get_session
 
 
-class CommentService(BaseService):
+class CommentService:
+    def __init__(self, session: AsyncSession = Depends(get_session)):
+        self.session = session
+
     async def _get(self, comment_id: int) -> CommentModel | None:
         comment = await self.session.execute(
             select(CommentModel)

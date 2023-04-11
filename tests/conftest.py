@@ -10,7 +10,7 @@ from sqlalchemy.orm import sessionmaker
 from app.app import app
 from app.database.database import Base, get_session
 from app.database.db_config import get_sqlalchemy_url
-from app.schemas.users import UserCreateSchema
+from app.users.schemas import UserCreateSchema
 
 engine = create_async_engine(
     get_sqlalchemy_url(database="test"),

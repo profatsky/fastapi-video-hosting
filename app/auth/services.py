@@ -1,23 +1,27 @@
 from datetime import datetime, timedelta
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from passlib.hash import bcrypt
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
-from app.models import UserModel
-from app.schemas.auth import TokenSchema
-from app.schemas.users import UserSchema, UserCreateSchema
-from app.services.base import BaseService
+from app.users.models import UserModel
+from app.database.database import get_session
+from .schemas import TokenSchema
+from app.users.schemas import UserSchema, UserCreateSchema
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/sign-in")
 
 
-class AuthService(BaseService):
+class AuthService:
+    def __init__(self, session: AsyncSession = Depends(get_session)):
+        self.session = session
+
     @staticmethod
     def verify_password(plain_password: str, hashed_password: str) -> bool:
         return bcrypt.verify(plain_password, hashed_password)

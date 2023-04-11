@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 
-from app.models import UserModel
-from app.services.users import UserService
+from .models import UserModel
+from app.users.services import UserService
 
 
 async def valid_user_id(

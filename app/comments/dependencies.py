@@ -1,9 +1,9 @@
 from fastapi import Depends, HTTPException, status
 
-from app.dependencies.auth import get_current_user
-from app.models import CommentModel
-from app.schemas.users import UserSchema
-from app.services.comments import CommentService
+from app.auth.dependencies import get_current_user
+from app.comments.models import CommentModel
+from app.users.schemas import UserSchema
+from app.comments.services import CommentService
 
 
 async def valid_comment_id(

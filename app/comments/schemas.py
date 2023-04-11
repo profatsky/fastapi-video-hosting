@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, validator
 
-from app.schemas.users import UserSchema
+from app.users.schemas import UserSchema
 
 
 class BaseCommentSchema(BaseModel):

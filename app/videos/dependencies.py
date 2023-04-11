@@ -1,9 +1,9 @@
 from fastapi import Depends, HTTPException, status
 
-from app.dependencies.auth import get_current_user
-from app.models import VideoModel
-from app.schemas.users import UserSchema
-from app.services.videos import VideoService
+from app.auth.dependencies import get_current_user
+from app.users.schemas import UserSchema
+from .models import VideoModel
+from .services import VideoService
 
 
 async def valid_video_id(

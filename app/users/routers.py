@@ -2,13 +2,13 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 
-from app.dependencies.users import valid_user_id
-from app.models import UserModel
-from app.schemas.exceptions import MessageSchema
-from app.schemas.users import UserSchema, UserUpdateSchema, UserInfoSchema
-from app.schemas.videos import SimpleVideoSchema
-from app.dependencies.auth import get_current_user
-from app.services.users import UserService
+from app.users.dependencies import valid_user_id
+from .models import UserModel
+from app.exceptions_schemas import MessageSchema
+from app.users.schemas import UserSchema, UserUpdateSchema, UserInfoSchema
+from app.videos.schemas import SimpleVideoSchema
+from app.auth.dependencies import get_current_user
+from app.users.services import UserService
 
 router = APIRouter(
     prefix="/users",
